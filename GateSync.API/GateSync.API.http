@@ -1,0 +1,6 @@
+@GateSync.API_HostAddress = http://localhost:5272
+
+GET {{GateSync.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
