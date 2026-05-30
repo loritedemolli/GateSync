@@ -7,11 +7,11 @@ namespace GateSync.API.Services
 
 		Task<List<CityResponseDTO>> GetAllAsync();
 
-		Task<CityResponseDTO> GetByIdAsync(int id);
+		Task<CityResponseDTO?> GetByIdAsync(int id);
 
 		Task<CityResponseDTO> CreateAsync(CreateCityDTO dto);
 
-		Task<CityResponseDTO> UpdateAsync(int id, UpdateCityDTO dto);
+		Task<CityResponseDTO?> UpdateAsync(int id, UpdateCityDTO dto);
 
 		Task<bool> DeleteAsync(int id);
 
