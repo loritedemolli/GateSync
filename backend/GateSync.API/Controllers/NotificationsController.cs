@@ -1,11 +1,13 @@
 using GateSync.API.Models.DTOs.Notification;
 using GateSync.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _service;

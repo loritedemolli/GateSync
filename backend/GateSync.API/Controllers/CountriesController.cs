@@ -1,11 +1,13 @@
 using GateSync.API.Models.DTOs.Country;
 using GateSync.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CountriesController : ControllerBase
     {
         private readonly ICountryService _service;

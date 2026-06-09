@@ -1,11 +1,13 @@
 using GateSync.API.Models.DTOs.Vehicle;
 using GateSync.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class VehiclesController : ControllerBase
     {
         private readonly IVehicleService _service;

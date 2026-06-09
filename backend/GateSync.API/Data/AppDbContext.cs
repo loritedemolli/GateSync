@@ -23,7 +23,8 @@ namespace GateSync.API.Data
 		public DbSet<Notification> Notifications { get; set; }
 		public DbSet<Report> Reports { get; set; }
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 
@@ -64,8 +65,13 @@ namespace GateSync.API.Data
 				.HasForeignKey(n => n.ResidentId)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			// Enums ruhen si string 
-			modelBuilder.Entity<Invoice>()
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // Enums ruhen si string 
+            modelBuilder.Entity<Invoice>()
 				.Property(i => i.Status)
 				.HasConversion<string>();
 

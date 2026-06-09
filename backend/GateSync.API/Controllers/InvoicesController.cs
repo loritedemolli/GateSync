@@ -1,11 +1,13 @@
 using GateSync.API.Models.DTOs.Invoice;
 using GateSync.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class InvoicesController : ControllerBase
     {
         private readonly IInvoiceService _service;

@@ -1,11 +1,13 @@
 using GateSync.API.Models.DTOs.City;
 using GateSync.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CitiesController : ControllerBase
     {
         private readonly ICityService _service;
