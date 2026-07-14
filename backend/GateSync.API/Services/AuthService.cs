@@ -28,25 +28,26 @@ namespace GateSync.API.Services
 
         public async Task<AuthResponseDTO?> LoginAsync(LoginDTO dto)
         {
-            
             var user = await _userRepository.GetByUsernameAsync(dto.Username);
             if (user == null) return null;
 
-            
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return null;
 
-          
             return await GenerateTokensAsync(user);
         }
 
         public async Task<AuthResponseDTO?> RegisterAsync(RegisterDTO dto)
         {
-            
+            // Kontrollo nëse username ekziston
             if (await _userRepository.UsernameExistsAsync(dto.Username))
                 return null;
 
-            
+            // Kontrollo nëse email ekziston
+            if (await _context.Residents.AnyAsync(r => r.Email == dto.Email))
+                return null;
+
+            // Krijo User
             var user = new User
             {
                 Username = dto.Username,
@@ -56,24 +57,36 @@ namespace GateSync.API.Services
 
             await _userRepository.CreateAsync(user);
 
+            // Krijo Resident automatikisht
+            var resident = new Resident
+            {
+                FullName = dto.FullName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                IsOwner = dto.IsOwner,
+                ResidenceId = dto.ResidenceId,
+                UserId = user.UserId
+            };
+
+            await _context.Residents.AddAsync(resident);
+            await _context.SaveChangesAsync();
+
             var created = await _userRepository.GetByIdAsync(user.UserId);
             return await GenerateTokensAsync(created!);
         }
 
         public async Task<AuthResponseDTO?> RefreshTokenAsync(string refreshToken)
         {
-            
             var token = await _context.RefreshTokens
                 .Include(r => r.User)
                     .ThenInclude(u => u.Role)
-                .FirstOrDefaultAsync(r => 
-                    r.Token == refreshToken && 
-                    !r.IsRevoked && 
+                .FirstOrDefaultAsync(r =>
+                    r.Token == refreshToken &&
+                    !r.IsRevoked &&
                     r.ExpiryDate > DateTime.UtcNow);
 
             if (token == null) return null;
 
-            
             token.IsRevoked = true;
             await _context.SaveChangesAsync();
 
@@ -92,13 +105,11 @@ namespace GateSync.API.Services
             return true;
         }
 
-        // Helper method — gjeneron Access + Refresh tokens
         private async Task<AuthResponseDTO> GenerateTokensAsync(User user)
         {
             var accessToken = _jwtHelper.GenerateAccessToken(user);
             var refreshToken = _jwtHelper.GenerateRefreshToken();
 
-            
             var refreshTokenEntity = new RefreshToken
             {
                 Token = refreshToken,

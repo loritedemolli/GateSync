@@ -36,8 +36,10 @@ namespace GateSync.API.Models
 
     public enum UserRole
     {
+        SuperAdmin,
         Admin,
         Resident,
-        Security
+        Security,
+        Maintenance
     }
 }

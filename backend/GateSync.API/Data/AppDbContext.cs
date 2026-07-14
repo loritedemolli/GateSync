@@ -117,12 +117,14 @@ namespace GateSync.API.Data
 				.Property(p => p.PaidAmount)
 				.HasPrecision(18, 2);
 
-			// Te dhena fillestare per Roles
-			modelBuilder.Entity<Role>().HasData(
-				new Role { RoleId = 1, Name = UserRole.Admin },
-				new Role { RoleId = 2, Name = UserRole.Resident },
-				new Role { RoleId = 3, Name = UserRole.Security }
-			);
-		}
+            // Te dhena fillestare per Roles
+            modelBuilder.Entity<Role>().HasData(
+    new Role { RoleId = 1, Name = UserRole.SuperAdmin },
+    new Role { RoleId = 2, Name = UserRole.Admin },
+    new Role { RoleId = 3, Name = UserRole.Resident },
+    new Role { RoleId = 4, Name = UserRole.Security },
+    new Role { RoleId = 5, Name = UserRole.Maintenance }
+);
+        }
 	}
 }
