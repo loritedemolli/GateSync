@@ -9,11 +9,11 @@ namespace GateSync.API.Models.Entities
         public bool IsOwner { get; set; }
 
         // FK
-        public int ResidenceId { get; set; }
+        public int? ResidenceId { get; set; }
         public int UserId { get; set; }
 
         // Navigation Properties
-        public Residence Residence { get; set; } = null!;
+        public Residence? Residence { get; set; } = null!;
         public User User { get; set; } = null!;
 
         // Nje Resident ben shume Payments

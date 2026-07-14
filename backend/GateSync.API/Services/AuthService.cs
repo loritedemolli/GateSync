@@ -63,8 +63,7 @@ namespace GateSync.API.Services
                 FullName = dto.FullName,
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
-                IsOwner = dto.IsOwner,
-                ResidenceId = dto.ResidenceId,
+                IsOwner = false,
                 UserId = user.UserId
             };
 
