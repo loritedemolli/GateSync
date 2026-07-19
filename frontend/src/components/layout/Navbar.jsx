@@ -19,7 +19,7 @@ function Navbar() {
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
-      {/* Left — Search */}
+      {/* Left Search */}
       <div
         className="flex items-center gap-2 rounded-xl px-4 py-2.5 w-96"
         style={{
