@@ -88,7 +88,7 @@ function LoginPage() {
         </div>
       </div>
 
-      {/* Right Side */}
+      {/* Right side */}
       <div
         className="flex items-center justify-center w-full lg:flex-1 p-6"
         style={{ background: "rgba(0,0,0,0.15)" }}
@@ -102,7 +102,7 @@ function LoginPage() {
               boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
             }}
           >
-            {/* Header — Centered */}
+            {/* Header centered */}
             <div className="mb-8 text-center">
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 mx-auto"
@@ -334,7 +334,7 @@ function LoginPage() {
               </button>
             </form>
 
-            {/* Divider */}
+            {/* Divide */}
             <div
               style={{
                 display: "flex",
@@ -387,9 +387,7 @@ function LoginPage() {
               marginTop: "20px",
               fontWeight: "500",
             }}
-          >
-            © 2026 GateSync. All rights reserved.
-          </p>
+          ></p>
         </div>
       </div>
     </div>

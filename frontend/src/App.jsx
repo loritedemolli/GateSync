@@ -5,6 +5,8 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import Layout from "./components/layout/Layout";
+import ResidencesPage from "./pages/residences/ResidencesPage";
+import ResidentsPage from "./pages/residents/ResidentsPage";
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -43,7 +45,23 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/residences"
+        element={
+          <ProtectedRoute>
+            <ResidencesPage />
+          </ProtectedRoute>
+        }
+      />
 
+      <Route
+        path="/residents"
+        element={
+          <ProtectedRoute>
+            <ResidentsPage />
+          </ProtectedRoute>
+        }
+      />
       {/* Default */}
       <Route
         path="*"

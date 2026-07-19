@@ -143,7 +143,7 @@ function RegisterPage() {
           "linear-gradient(to right, #052e16 0%, #14532d 50%, #1a6b3c 100%)",
       }}
     >
-      {/* Left Side */}
+      {/* Left side */}
       <div className="hidden lg:flex flex-col justify-center px-16 flex-1">
         <div className="flex items-center gap-4 mb-10">
           <div
@@ -188,7 +188,7 @@ function RegisterPage() {
         </div>
       </div>
 
-      {/* Right Side */}
+      {/* Right side */}
       <div
         className="flex items-center justify-center w-full lg:flex-1 p-6"
         style={{ background: "rgba(0,0,0,0.15)" }}
@@ -508,7 +508,7 @@ function RegisterPage() {
               </button>
             </form>
 
-            {/* Divider */}
+            {/* Dividee */}
             <div
               style={{
                 display: "flex",
@@ -561,9 +561,7 @@ function RegisterPage() {
               marginTop: "20px",
               fontWeight: "500",
             }}
-          >
-            © 2026 GateSync. All rights reserved.
-          </p>
+          ></p>
         </div>
       </div>
     </div>
