@@ -22,8 +22,9 @@ namespace GateSync.API.Services
                 Address = r.Address,
                 Type = r.Type.ToString(),
                 IsOccupied = r.IsOccupied,
-                CityName = r.City.Name,
-                CountryName = r.City.Country.Name
+                NeighborhoodName = r.Neighborhood.Name,
+                CityName = r.Neighborhood.City.Name,
+                CountryName = r.Neighborhood.City.Country.Name
             }).ToList();
         }
 
@@ -38,8 +39,9 @@ namespace GateSync.API.Services
                 Address = residence.Address,
                 Type = residence.Type.ToString(),
                 IsOccupied = residence.IsOccupied,
-                CityName = residence.City.Name,
-                CountryName = residence.City.Country.Name
+                NeighborhoodName = residence.Neighborhood.Name,
+                CityName = residence.Neighborhood.City.Name,
+                CountryName = residence.Neighborhood.City.Country.Name
             };
         }
 
@@ -50,7 +52,7 @@ namespace GateSync.API.Services
                 Address = dto.Address,
                 Type = dto.Type,
                 IsOccupied = false,
-                CityId = dto.CityId
+                NeighborhoodId = dto.NeighborhoodId
             };
 
             await _repository.CreateAsync(residence);
@@ -62,8 +64,9 @@ namespace GateSync.API.Services
                 Address = created.Address,
                 Type = created.Type.ToString(),
                 IsOccupied = created.IsOccupied,
-                CityName = created.City.Name,
-                CountryName = created.City.Country.Name
+                NeighborhoodName = created.Neighborhood.Name,
+                CityName = created.Neighborhood.City.Name,
+                CountryName = created.Neighborhood.City.Country.Name
             };
         }
 
@@ -75,7 +78,7 @@ namespace GateSync.API.Services
             residence.Address = dto.Address;
             residence.Type = dto.Type;
             residence.IsOccupied = dto.IsOccupied;
-            residence.CityId = dto.CityId;
+            residence.NeighborhoodId = dto.NeighborhoodId;
             await _repository.UpdateAsync(residence);
 
             var updated = await _repository.GetByIdAsync(id);
@@ -85,8 +88,9 @@ namespace GateSync.API.Services
                 Address = updated.Address,
                 Type = updated.Type.ToString(),
                 IsOccupied = updated.IsOccupied,
-                CityName = updated.City.Name,
-                CountryName = updated.City.Country.Name
+                NeighborhoodName = updated.Neighborhood.Name,
+                CityName = updated.Neighborhood.City.Name,
+                CountryName = updated.Neighborhood.City.Country.Name
             };
         }
 

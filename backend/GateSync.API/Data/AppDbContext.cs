@@ -22,14 +22,21 @@ namespace GateSync.API.Data
 		public DbSet<Vehicle> Vehicles { get; set; }
 		public DbSet<Notification> Notifications { get; set; }
 		public DbSet<Report> Reports { get; set; }
+        public DbSet<Neighborhood> Neighborhoods { get; set; }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 
-			// Shmang cascade paths te shumefishta në SQL Server
-			modelBuilder.Entity<Payment>()
+            // Shmang cascade paths te shumefishta në SQL Server
+            modelBuilder.Entity<Residence>()
+           .HasOne(r => r.Neighborhood)
+           .WithMany(n => n.Residences)
+           .HasForeignKey(r => r.NeighborhoodId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Payment>()
 				.HasOne(p => p.Resident)
 				.WithMany(r => r.Payments)
 				.HasForeignKey(p => p.ResidentId)

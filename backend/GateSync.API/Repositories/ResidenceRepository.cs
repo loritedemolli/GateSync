@@ -16,8 +16,9 @@ namespace GateSync.API.Repositories
         public async Task<List<Residence>> GetAllAsync()
         {
             return await _context.Residences
-                .Include(r => r.City)
-                    .ThenInclude(c => c.Country)
+                .Include(r => r.Neighborhood)
+                    .ThenInclude(n => n.City)
+                        .ThenInclude(c => c.Country)
                 .OrderBy(r => r.Address)
                 .ToListAsync();
         }
@@ -25,8 +26,9 @@ namespace GateSync.API.Repositories
         public async Task<Residence?> GetByIdAsync(int id)
         {
             return await _context.Residences
-                .Include(r => r.City)
-                    .ThenInclude(c => c.Country)
+                .Include(r => r.Neighborhood)
+                    .ThenInclude(n => n.City)
+                        .ThenInclude(c => c.Country)
                 .FirstOrDefaultAsync(r => r.ResidenceId == id);
         }
 

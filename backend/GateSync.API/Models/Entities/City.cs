@@ -9,6 +9,8 @@ namespace GateSync.API.Models.Entities
         public int CountryId { get; set; }
 
         // Navigation Properties
+        public ICollection<Neighborhood> Neighborhoods { get; set; }
+    = new List<Neighborhood>();
         public Country Country { get; set; } = null!;
         public ICollection<Residence> Residences { get; set; } 
             = new List<Residence>();

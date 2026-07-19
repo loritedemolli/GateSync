@@ -16,6 +16,6 @@ namespace GateSync.API.Models.DTOs.Residence
         public bool IsOccupied { get; set; }
 
         [Required(ErrorMessage = "Qyteti është i detyrueshëm")]
-        public int CityId { get; set; }
+        public int NeighborhoodId { get; set; }
     }
 }

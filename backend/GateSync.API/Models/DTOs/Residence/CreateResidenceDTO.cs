@@ -14,6 +14,6 @@ namespace GateSync.API.Models.DTOs.Residence
         public ResidenceType Type { get; set; }
 
         [Required(ErrorMessage = "Qyteti është i detyrueshëm")]
-        public int CityId { get; set; }
+        public int NeighborhoodId { get; set; }
     }
 }

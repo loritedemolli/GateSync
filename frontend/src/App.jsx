@@ -2,10 +2,13 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
+import SettingsPage from "./pages/settings/SettingsPage";
+import Layout from "./components/layout/Layout";
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
+  return user ? <Layout>{children}</Layout> : <Navigate to="/login" />;
 }
 
 function App() {
@@ -13,7 +16,7 @@ function App() {
 
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public */}
       <Route
         path="/login"
         element={user ? <Navigate to="/dashboard" /> : <LoginPage />}
@@ -23,14 +26,20 @@ function App() {
         element={user ? <Navigate to="/dashboard" /> : <RegisterPage />}
       />
 
-      {/* Protected routes */}
+      {/* Protected */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <div className="p-10 text-2xl font-bold">
-              Mirë se vini, {user?.username}! 👋
-            </div>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         }
       />

@@ -8,9 +8,9 @@ namespace GateSync.API.Models.Entities
 		// Enum 
 		public ResidenceType Type { get; set; }
 		public bool IsOccupied { get; set; }
-		public int CityId { get; set; }
-		public City City { get; set; } = null!;
-		public ICollection<Resident> Residents { get; set; }
+        public int NeighborhoodId { get; set; }
+        public Neighborhood Neighborhood { get; set; } = null!;
+        public ICollection<Resident> Residents { get; set; }
 			= new List<Resident>();
 		public ICollection<Invoice> Invoices { get; set; }
 			= new List<Invoice>();

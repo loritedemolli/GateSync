@@ -28,8 +28,9 @@ builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
-
+builder.Services.AddScoped<INeighborhoodRepository, NeighborhoodRepository>();
 // Services
+builder.Services.AddScoped<INeighborhoodService, NeighborhoodService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
