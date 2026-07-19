@@ -4,7 +4,7 @@ const api = axios.create({
   baseURL: "http://localhost:5272/api",
 });
 
-// Shto token automatikisht në çdo request
+// Shto token automatikisht ne qdo request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -13,7 +13,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Nëse token skadon → rinovoj automatikisht
+// Nese tokeni skadon rinovo automatically
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
