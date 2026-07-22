@@ -41,7 +41,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Country", b =>
@@ -58,7 +58,7 @@ namespace GateSync.API.Migrations
 
                     b.HasKey("CountryId");
 
-                    b.ToTable("Countries");
+                    b.ToTable("Countries", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Invoice", b =>
@@ -87,7 +87,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("ResidenceId");
 
-                    b.ToTable("Invoices");
+                    b.ToTable("Invoices", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Neighborhood", b =>
@@ -119,7 +119,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.ToTable("Neighborhoods");
+                    b.ToTable("Neighborhoods", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Notification", b =>
@@ -151,7 +151,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("ResidentId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Payment", b =>
@@ -185,7 +185,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("ResidentId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.ProblemReport", b =>
@@ -218,7 +218,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("ResidentId");
 
-                    b.ToTable("ProblemReports");
+                    b.ToTable("ProblemReports", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.RefreshToken", b =>
@@ -249,7 +249,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Report", b =>
@@ -278,7 +278,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("GeneratedByUserId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Reservation", b =>
@@ -307,7 +307,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("ResidentId");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Residence", b =>
@@ -341,7 +341,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("NeighborhoodId");
 
-                    b.ToTable("Residences");
+                    b.ToTable("Residences", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Resident", b =>
@@ -382,7 +382,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Residents");
+                    b.ToTable("Residents", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Role", b =>
@@ -399,7 +399,7 @@ namespace GateSync.API.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -455,7 +455,7 @@ namespace GateSync.API.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.Vehicle", b =>
@@ -488,7 +488,7 @@ namespace GateSync.API.Migrations
 
                     b.HasIndex("ResidentId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("GateSync.API.Models.Entities.City", b =>
