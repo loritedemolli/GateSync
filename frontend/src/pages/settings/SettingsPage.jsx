@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { MdPublic, MdLocationCity, MdSecurity } from "react-icons/md";
+import {
+  MdPublic,
+  MdLocationCity,
+  MdSecurity,
+  MdApartment,
+} from "react-icons/md";
 import CountriesTab from "./tabs/CountriesTab";
 import CitiesTab from "./tabs/CitiesTab";
 import RolesTab from "./tabs/RolesTab";
+import NeighborhoodsTab from "./tabs/NeighborhoodsTab";
 
 const tabs = [
   { id: "countries", label: "Countries", icon: MdPublic },
   { id: "cities", label: "Cities", icon: MdLocationCity },
+  { id: "neighborhoods", label: "Neighborhoods", icon: MdApartment },
   { id: "roles", label: "Roles", icon: MdSecurity },
 ];
 
@@ -68,6 +75,7 @@ function SettingsPage() {
       {/* Tab Content */}
       {activeTab === "countries" && <CountriesTab />}
       {activeTab === "cities" && <CitiesTab />}
+      {activeTab === "neighborhoods" && <NeighborhoodsTab />}
       {activeTab === "roles" && <RolesTab />}
     </div>
   );
