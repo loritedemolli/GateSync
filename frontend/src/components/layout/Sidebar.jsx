@@ -13,28 +13,103 @@ import {
   MdAssessment,
   MdLogout,
   MdSettings,
+  MdAdminPanelSettings,
+  MdPerson,
 } from "react-icons/md";
 
-const menuItems = [
-  { path: "/dashboard", icon: MdDashboard, label: "Dashboard" },
-  { path: "/residents", icon: MdPeople, label: "Residents" },
-  { path: "/residences", icon: MdHome, label: "Residences" },
-  { path: "/invoices", icon: MdReceipt, label: "Invoices" },
-  { path: "/payments", icon: MdPayment, label: "Payments" },
-  { path: "/problem-reports", icon: MdBuild, label: "Problem Reports" },
-  { path: "/reservations", icon: MdEventAvailable, label: "Reservations" },
-  { path: "/vehicles", icon: MdDirectionsCar, label: "Vehicles" },
-  { path: "/notifications", icon: MdNotifications, label: "Notifications" },
-  { path: "/reports", icon: MdAssessment, label: "Reports" },
+const allMenuItems = [
+  // SuperAdmin + Admin
+  {
+    path: "/dashboard",
+    icon: MdDashboard,
+    label: "Dashboard",
+    roles: ["SuperAdmin", "Admin", "Resident", "Security", "Maintenance"],
+  },
+  {
+    path: "/users",
+    icon: MdAdminPanelSettings,
+    label: "Users",
+    roles: ["SuperAdmin"],
+  },
+  {
+    path: "/residents",
+    icon: MdPeople,
+    label: "Residents",
+    roles: ["SuperAdmin", "Admin", "Security"],
+  },
+  {
+    path: "/residences",
+    icon: MdHome,
+    label: "Residences",
+    roles: ["SuperAdmin", "Admin"],
+  },
+  {
+    path: "/invoices",
+    icon: MdReceipt,
+    label: "Invoices",
+    roles: ["SuperAdmin", "Admin", "Resident"],
+  },
+  {
+    path: "/payments",
+    icon: MdPayment,
+    label: "Payments",
+    roles: ["SuperAdmin", "Admin", "Resident"],
+  },
+  {
+    path: "/problem-reports",
+    icon: MdBuild,
+    label: "Problem Reports",
+    roles: ["SuperAdmin", "Admin", "Resident", "Maintenance"],
+  },
+  {
+    path: "/reservations",
+    icon: MdEventAvailable,
+    label: "Reservations",
+    roles: ["SuperAdmin", "Admin", "Resident"],
+  },
+  {
+    path: "/vehicles",
+    icon: MdDirectionsCar,
+    label: "Vehicles",
+    roles: ["SuperAdmin", "Admin", "Security"],
+  },
+  {
+    path: "/notifications",
+    icon: MdNotifications,
+    label: "Notifications",
+    roles: ["SuperAdmin", "Admin", "Resident", "Security", "Maintenance"],
+  },
+  {
+    path: "/reports",
+    icon: MdAssessment,
+    label: "Reports",
+    roles: ["SuperAdmin", "Admin"],
+  },
+  {
+    path: "/my-profile",
+    icon: MdPerson,
+    label: "My Profile",
+    roles: ["Resident"],
+  },
+  {
+    path: "/my-vehicles",
+    icon: MdDirectionsCar,
+    label: "My Vehicles",
+    roles: ["Resident"],
+  },
 ];
 
 function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
 
+  const menuItems = allMenuItems.filter((item) =>
+    item.roles.includes(user?.role),
+  );
+
   return (
     <div
-      className="w-64 min-h-screen flex flex-col fixed left-0 top-0 bottom-0"
+      className="w-64 min-h-screen flex flex-col flex-shrink-0"
       style={{
         background:
           "linear-gradient(160deg, #052e16 0%, #14532d 50%, #166534 100%)",
@@ -117,7 +192,7 @@ function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
               style={
                 isActive
                   ? {
@@ -125,9 +200,7 @@ function Sidebar() {
                       color: "#ffffff",
                       boxShadow: "0 4px 12px rgba(34,197,94,0.35)",
                     }
-                  : {
-                      color: "rgba(255,255,255,0.6)",
-                    }
+                  : { color: "rgba(255,255,255,0.6)" }
               }
               onMouseEnter={(e) => {
                 if (!isActive) {
@@ -143,7 +216,7 @@ function Sidebar() {
               }}
             >
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={
                   isActive
                     ? { background: "rgba(255,255,255,0.2)" }
@@ -167,27 +240,32 @@ function Sidebar() {
           className="mx-0 mb-2"
           style={{ height: "1px", background: "rgba(255,255,255,0.08)" }}
         />
-        <Link
-          to="/settings"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
-          style={{ color: "rgba(255,255,255,0.5)" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.08)";
-            e.currentTarget.style.color = "#ffffff";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "";
-            e.currentTarget.style.color = "rgba(255,255,255,0.5)";
-          }}
-        >
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.06)" }}
+
+        {/* Settings — vetëm SuperAdmin */}
+        {user?.role === "SuperAdmin" && (
+          <Link
+            to="/settings"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+              e.currentTarget.style.color = "#ffffff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "";
+              e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+            }}
           >
-            <MdSettings size={17} />
-          </div>
-          <span>Settings</span>
-        </Link>
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              <MdSettings size={17} />
+            </div>
+            <span>Settings</span>
+          </Link>
+        )}
+
         <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"

@@ -4,12 +4,12 @@ import Navbar from "./Navbar";
 function Layout({ children }) {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-gray-50">
-      {/* Sidebar  fixed width */}
-      <div className="flex-shrink-0" style={{ width: "256px" }}>
+      <div
+        className="flex-shrink-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden"
+        style={{ width: "256px" }}
+      >
         <Sidebar />
       </div>
-
-      {/* Main content */}
       <div
         className="flex flex-col flex-1 overflow-hidden"
         style={{ minWidth: 0 }}
