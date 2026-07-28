@@ -110,5 +110,19 @@ namespace GateSync.API.Services
             await _repository.DeleteAsync(notification);
             return true;
         }
+        public async Task<List<NotificationResponseDTO>> GetByUserIdAsync(int userId)
+        {
+            var notifications = await _repository.GetAllAsync();
+            return notifications
+                .Where(n => n.Resident.UserId == userId)
+                .Select(n => new NotificationResponseDTO
+                {
+                    NotificationId = n.NotificationId,
+                    Title = n.Title,
+                    Message = n.Message,
+                    SentAt = n.SentAt,
+                    ResidentName = n.Resident?.FullName ?? "All Residents"
+                }).ToList();
+        }
     }
 }

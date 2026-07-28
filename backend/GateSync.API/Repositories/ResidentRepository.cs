@@ -67,5 +67,6 @@ namespace GateSync.API.Repositories
             return await _context.Residents
                 .AnyAsync(r => r.Email == email);
         }
+
     }
 }

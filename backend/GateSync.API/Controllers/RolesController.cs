@@ -18,6 +18,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "SuperAdmin,Admin,Resident,Security,Maintenance")]
         public async Task<IActionResult> GetAll()
         {
             var roles = await _service.GetAllAsync();
@@ -25,6 +26,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetById(int id)
         {
             var role = await _service.GetByIdAsync(id);
@@ -33,6 +35,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create([FromBody] CreateRoleDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -42,6 +45,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -51,6 +55,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);

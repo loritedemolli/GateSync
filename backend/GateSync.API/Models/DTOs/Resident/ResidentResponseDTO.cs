@@ -8,6 +8,8 @@ namespace GateSync.API.Models.DTOs.Resident
         public string Email { get; set; } = string.Empty;
         public bool IsOwner { get; set; }
         public string ResidenceAddress { get; set; } = string.Empty;
+        public string NeighborhoodName { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
+        public int? UserId { get; set; }
     }
 }

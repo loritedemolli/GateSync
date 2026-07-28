@@ -10,5 +10,6 @@ namespace GateSync.API.Services
         Task<ReservationResponseDTO> CreateAsync(CreateReservationDTO dto);
         Task<ReservationResponseDTO?> UpdateAsync(int id, UpdateReservationDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<List<ReservationResponseDTO>> GetByUserIdAsync(int userId);
     }
 }

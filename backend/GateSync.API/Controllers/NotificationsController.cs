@@ -18,6 +18,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetAll()
         {
             var notifications = await _service.GetAllAsync();
@@ -25,6 +26,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var notification = await _service.GetByIdAsync(id);
@@ -33,13 +35,25 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("resident/{residentId}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetByResidentId(int residentId)
         {
             var notifications = await _service.GetByResidentIdAsync(residentId);
             return Ok(notifications);
         }
 
+        [HttpGet("my")]
+        [Authorize(Roles = "Resident,Security,Maintenance")]
+        public async Task<IActionResult> GetMyNotifications()
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            if (userId == null) return Unauthorized();
+            var notifications = await _service.GetByUserIdAsync(int.Parse(userId));
+            return Ok(notifications);
+        }
+
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Create([FromBody] CreateNotificationDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -49,6 +63,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateNotificationDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -58,6 +73,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);

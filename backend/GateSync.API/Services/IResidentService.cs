@@ -9,5 +9,6 @@ namespace GateSync.API.Services
         Task<ResidentResponseDTO> CreateAsync(CreateResidentDTO dto);
         Task<ResidentResponseDTO?> UpdateAsync(int id, UpdateResidentDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<ResidentResponseDTO?> GetByUserIdAsync(int userId);
     }
 }

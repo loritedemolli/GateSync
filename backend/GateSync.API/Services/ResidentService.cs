@@ -105,5 +105,22 @@ namespace GateSync.API.Services
             await _repository.DeleteAsync(resident);
             return true;
         }
+        public async Task<ResidentResponseDTO?> GetByUserIdAsync(int userId)
+        {
+            var resident = await _repository.GetByUserIdAsync(userId);
+            if (resident == null) return null;
+
+            return new ResidentResponseDTO
+            {
+                ResidentId = resident.ResidentId,
+                FullName = resident.FullName,
+                Email = resident.Email,
+                PhoneNumber = resident.PhoneNumber,
+                IsOwner = resident.IsOwner,
+                ResidenceAddress = resident.Residence?.Address,
+                NeighborhoodName = resident.Residence?.Neighborhood?.Name,
+                UserId = resident.UserId
+            };
+        }
     }
 }

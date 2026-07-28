@@ -10,5 +10,6 @@ namespace GateSync.API.Services
         Task<InvoiceResponseDTO> CreateAsync(CreateInvoiceDTO dto);
         Task<InvoiceResponseDTO?> UpdateAsync(int id, UpdateInvoiceDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<List<InvoiceResponseDTO>> GetByUserIdAsync(int userId);
     }
 }

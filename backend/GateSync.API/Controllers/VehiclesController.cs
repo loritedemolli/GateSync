@@ -18,6 +18,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "SuperAdmin,Admin,Security")]
         public async Task<IActionResult> GetAll()
         {
             var vehicles = await _service.GetAllAsync();
@@ -25,6 +26,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin,Security")]
         public async Task<IActionResult> GetById(int id)
         {
             var vehicle = await _service.GetByIdAsync(id);
@@ -33,13 +35,25 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("resident/{residentId}")]
+        [Authorize(Roles = "SuperAdmin,Admin,Security")]
         public async Task<IActionResult> GetByResidentId(int residentId)
         {
             var vehicles = await _service.GetByResidentIdAsync(residentId);
             return Ok(vehicles);
         }
 
+        [HttpGet("my")]
+        [Authorize(Roles = "Resident")]
+        public async Task<IActionResult> GetMyVehicles()
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            if (userId == null) return Unauthorized();
+            var vehicles = await _service.GetByUserIdAsync(int.Parse(userId));
+            return Ok(vehicles);
+        }
+
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,Admin,Resident")]
         public async Task<IActionResult> Create([FromBody] CreateVehicleDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -49,6 +63,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateVehicleDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -58,6 +73,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin,Resident")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);

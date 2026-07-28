@@ -7,7 +7,7 @@ namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _service;

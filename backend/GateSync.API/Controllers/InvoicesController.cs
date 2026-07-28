@@ -18,6 +18,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetAll()
         {
             var invoices = await _service.GetAllAsync();
@@ -25,6 +26,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var invoice = await _service.GetByIdAsync(id);
@@ -33,13 +35,25 @@ namespace GateSync.API.Controllers
         }
 
         [HttpGet("residence/{residenceId}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GetByResidenceId(int residenceId)
         {
             var invoices = await _service.GetByResidenceIdAsync(residenceId);
             return Ok(invoices);
         }
 
+        [HttpGet("my")]
+        [Authorize(Roles = "Resident")]
+        public async Task<IActionResult> GetMyInvoices()
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            if (userId == null) return Unauthorized();
+            var invoices = await _service.GetByUserIdAsync(int.Parse(userId));
+            return Ok(invoices);
+        }
+
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Create([FromBody] CreateInvoiceDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -49,6 +63,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateInvoiceDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -58,6 +73,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _service.DeleteAsync(id);

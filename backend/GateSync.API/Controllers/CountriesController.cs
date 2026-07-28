@@ -7,7 +7,7 @@ namespace GateSync.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     public class CountriesController : ControllerBase
     {
         private readonly ICountryService _service;
@@ -17,7 +17,6 @@ namespace GateSync.API.Controllers
             _service = service;
         }
 
-        // GET api/countries
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -25,7 +24,6 @@ namespace GateSync.API.Controllers
             return Ok(countries);
         }
 
-        // GET api/countries/1
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -34,17 +32,15 @@ namespace GateSync.API.Controllers
             return Ok(country);
         }
 
-        // POST api/countries
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCountryDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), 
+            return CreatedAtAction(nameof(GetById),
                 new { id = created.CountryId }, created);
         }
 
-        // PUT api/countries/1
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCountryDTO dto)
         {
@@ -54,7 +50,6 @@ namespace GateSync.API.Controllers
             return Ok(updated);
         }
 
-        // DELETE api/countries/1
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

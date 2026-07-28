@@ -12,5 +12,6 @@ namespace GateSync.API.Repositories
         Task DeleteAsync(Resident resident);
         Task<bool> ExistsAsync(int id);
         Task<bool> EmailExistsAsync(string email);
+
     }
 }

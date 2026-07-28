@@ -111,5 +111,20 @@ namespace GateSync.API.Services
             await _repository.DeleteAsync(payment);
             return true;
         }
+        public async Task<List<PaymentResponseDTO>> GetByUserIdAsync(int userId)
+        {
+            var payments = await _repository.GetAllAsync();
+            return payments
+                .Where(p => p.Resident.UserId == userId)
+                .Select(p => new PaymentResponseDTO
+                {
+                    PaymentId = p.PaymentId,
+                    PaidAmount = p.PaidAmount,
+                    PaymentDate = p.PaymentDate,
+                    Method = p.Method.ToString(),
+                    ResidentName = p.Resident.FullName,
+                    InvoiceAmount = p.Invoice.Amount 
+                }).ToList();
+        }
     }
 }

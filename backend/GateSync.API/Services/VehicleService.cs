@@ -106,5 +106,19 @@ namespace GateSync.API.Services
             await _repository.DeleteAsync(vehicle);
             return true;
         }
+        public async Task<List<VehicleResponseDTO>> GetByUserIdAsync(int userId)
+        {
+            var vehicles = await _repository.GetAllAsync();
+            return vehicles
+                .Where(v => v.Resident.UserId == userId)
+                .Select(v => new VehicleResponseDTO
+                {
+                    VehicleId = v.VehicleId,
+                    PlateNumber = v.PlateNumber,
+                    Brand = v.Brand,
+                    ModelName = v.ModelName, 
+                    ResidentName = v.Resident.FullName
+                }).ToList();
+        }
     }
 }

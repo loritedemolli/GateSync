@@ -107,5 +107,19 @@ namespace GateSync.API.Services
             await _repository.DeleteAsync(reservation);
             return true;
         }
+        public async Task<List<ReservationResponseDTO>> GetByUserIdAsync(int userId)
+        {
+            var reservations = await _repository.GetAllAsync();
+            return reservations
+                .Where(r => r.Resident.UserId == userId)
+                .Select(r => new ReservationResponseDTO
+                {
+                    ReservationId = r.ReservationId,
+                    FacilityName = r.FacilityName,
+                    Time = r.Time,
+                    Status = r.Status.ToString(),
+                    ResidentName = r.Resident.FullName
+                }).ToList();
+        }
     }
 }

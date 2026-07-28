@@ -10,5 +10,6 @@ namespace GateSync.API.Services
         Task<ProblemReportResponseDTO> CreateAsync(CreateProblemReportDTO dto);
         Task<ProblemReportResponseDTO?> UpdateAsync(int id, UpdateProblemReportDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<List<ProblemReportResponseDTO>> GetByUserIdAsync(int userId);
     }
 }
