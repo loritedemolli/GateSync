@@ -23,6 +23,7 @@ import MyReservations from "./pages/resident/MyReservations";
 import MyNotifications from "./pages/resident/MyNotifications";
 import MyProfile from "./pages/resident/MyProfile";
 import MyVehicles from "./pages/resident/MyVehicles";
+import LandingPage from "./pages/landing/LandingPage";
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
   return user ? <Layout>{children}</Layout> : <Navigate to="/login" />;
@@ -183,11 +184,13 @@ function App() {
           </ProtectedRoute>
         }
       />
-      {/* Default */}
+      <Route path="/" element={<LandingPage />} />
       <Route
-        path="*"
-        element={<Navigate to={user ? "/dashboard" : "/login"} />}
+        path="/login"
+        element={user ? <Navigate to="/dashboard" /> : <LoginPage />}
       />
+      {/* Default */}
+      <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />
     </Routes>
   );
 }
