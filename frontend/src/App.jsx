@@ -24,6 +24,11 @@ import MyNotifications from "./pages/resident/MyNotifications";
 import MyProfile from "./pages/resident/MyProfile";
 import MyVehicles from "./pages/resident/MyVehicles";
 import LandingPage from "./pages/landing/LandingPage";
+import SecurityDashboard from "./pages/security/SecurityDashboard";
+import SecurityPage from "./pages/security/SecurityPage";
+import MaintenanceDashboard from "./pages/maintenance/MaintenanceDashboard";
+import MaintenanceProblemsPage from "./pages/maintenance/MaintenanceProblemsPage";
+
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
   return user ? <Layout>{children}</Layout> : <Navigate to="/login" />;
@@ -51,6 +56,10 @@ function App() {
           <ProtectedRoute>
             {user?.role === "Resident" ? (
               <ResidentDashboard />
+            ) : user?.role === "Security" ? (
+              <SecurityPage />
+            ) : user?.role === "Maintenance" ? (
+              <MaintenanceDashboard />
             ) : (
               <DashboardPage />
             )}
@@ -87,7 +96,7 @@ function App() {
         path="/residents"
         element={
           <ProtectedRoute>
-            <ResidentsPage />
+            {user?.role === "Security" ? <SecurityPage /> : <ResidentsPage />}
           </ProtectedRoute>
         }
       />
@@ -113,6 +122,8 @@ function App() {
           <ProtectedRoute>
             {user?.role === "Resident" ? (
               <MyProblems />
+            ) : user?.role === "Maintenance" ? (
+              <MaintenanceProblemsPage />
             ) : (
               <ProblemReportsPage />
             )}
@@ -135,7 +146,7 @@ function App() {
         path="/vehicles"
         element={
           <ProtectedRoute>
-            <VehiclesPage />
+            {user?.role === "Security" ? <SecurityPage /> : <VehiclesPage />}
           </ProtectedRoute>
         }
       />
@@ -143,10 +154,10 @@ function App() {
         path="/notifications"
         element={
           <ProtectedRoute>
-            {user?.role === "Resident" ? (
-              <MyNotifications />
-            ) : (
+            {user?.role === "SuperAdmin" || user?.role === "Admin" ? (
               <NotificationsPage />
+            ) : (
+              <MyNotifications />
             )}
           </ProtectedRoute>
         }
@@ -177,10 +188,10 @@ function App() {
         }
       />
       <Route
-        path="/my-vehicles"
+        path="/vehicles"
         element={
           <ProtectedRoute>
-            <MyVehicles />
+            <VehiclesPage />
           </ProtectedRoute>
         }
       />
