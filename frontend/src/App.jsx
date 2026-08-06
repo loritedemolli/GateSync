@@ -151,6 +151,14 @@ function App() {
         }
       />
       <Route
+        path="/my-vehicles"
+        element={
+          <ProtectedRoute>
+            <MyVehicles />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/notifications"
         element={
           <ProtectedRoute>
@@ -187,14 +195,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/vehicles"
-        element={
-          <ProtectedRoute>
-            <VehiclesPage />
-          </ProtectedRoute>
-        }
-      />
+
       <Route path="/" element={<LandingPage />} />
       <Route
         path="/login"

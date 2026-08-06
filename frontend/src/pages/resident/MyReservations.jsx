@@ -84,9 +84,13 @@ function MyReservations() {
 
     setSaving(true);
     try {
+      const profileRes = await api.get("/residents/my-profile");
+      const residentId = profileRes.data.residentId;
+
       await api.post("/reservations", {
         facilityName: formData.facilityName,
         time: formData.time,
+        residentId: residentId,
         status: 0,
       });
       await fetchData();

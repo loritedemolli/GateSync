@@ -7,6 +7,7 @@ import {
   MdEdit,
   MdCheck,
   MdClose,
+  MdLock,
 } from "react-icons/md";
 import api from "../../services/api";
 
@@ -18,6 +19,7 @@ function MyProfile() {
     fullName: "",
     email: "",
     phoneNumber: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -30,6 +32,7 @@ function MyProfile() {
         fullName: res.data.fullName,
         email: res.data.email,
         phoneNumber: res.data.phoneNumber,
+        password: "",
       });
     } catch {
       console.log("Error");
@@ -52,6 +55,8 @@ function MyProfile() {
       !/^[+]?[0-9]{9,15}$/.test(formData.phoneNumber)
     )
       return "Phone Number must have at least 9 digits!";
+    if (formData.password && formData.password.length < 8)
+      return "Password must be at least 8 characters!";
     return null;
   };
 
@@ -66,8 +71,16 @@ function MyProfile() {
         email: formData.email,
         phoneNumber: formData.phoneNumber,
         isOwner: profile.isOwner,
-        residenceId: null,
+        residenceId: profile.residenceId,
+        userId: profile.userId,
       });
+
+      if (formData.password && formData.password.length >= 8) {
+        await api.put(`/auth/change-password`, {
+          newPassword: formData.password,
+        });
+      }
+
       await fetchProfile();
       setShowModal(false);
     } catch {
@@ -90,6 +103,18 @@ function MyProfile() {
     boxSizing: "border-box",
     fontFamily: "system-ui, sans-serif",
     transition: "all 0.15s",
+  };
+
+  const handleFocus = (e) => {
+    e.target.style.borderColor = "#22c55e";
+    e.target.style.background = "#f0fdf4";
+    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.borderColor = "#e2e8f0";
+    e.target.style.background = "#f8fafc";
+    e.target.style.boxShadow = "none";
   };
 
   if (loading) {
@@ -217,6 +242,14 @@ function MyProfile() {
             bg: "#fffbeb",
             border: "#fde68a",
           },
+          {
+            icon: MdLock,
+            label: "Password",
+            value: "••••••••",
+            color: "#64748b",
+            bg: "#f8fafc",
+            border: "#e2e8f0",
+          },
         ].map((item) => {
           const Icon = item.icon;
           return (
@@ -312,6 +345,7 @@ function MyProfile() {
             )}
 
             <div className="space-y-4 mb-5">
+              {/* Full Name */}
               <div>
                 <label
                   style={{
@@ -334,19 +368,12 @@ function MyProfile() {
                   }
                   placeholder="e.g. John Smith"
                   style={inputStyle}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22c55e";
-                    e.target.style.background = "#f0fdf4";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e2e8f0";
-                    e.target.style.background = "#f8fafc";
-                    e.target.style.boxShadow = "none";
-                  }}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                 />
               </div>
 
+              {/* Email */}
               <div>
                 <label
                   style={{
@@ -369,19 +396,12 @@ function MyProfile() {
                   }
                   placeholder="e.g. john@email.com"
                   style={inputStyle}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22c55e";
-                    e.target.style.background = "#f0fdf4";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e2e8f0";
-                    e.target.style.background = "#f8fafc";
-                    e.target.style.boxShadow = "none";
-                  }}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                 />
               </div>
 
+              {/* Phone */}
               <div>
                 <label
                   style={{
@@ -404,16 +424,36 @@ function MyProfile() {
                   }
                   placeholder="e.g. +38344123456"
                   style={inputStyle}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22c55e";
-                    e.target.style.background = "#f0fdf4";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)";
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    marginBottom: "8px",
                   }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e2e8f0";
-                    e.target.style.background = "#f8fafc";
-                    e.target.style.boxShadow = "none";
-                  }}
+                >
+                  New Password (optional)
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, password: e.target.value }))
+                  }
+                  placeholder="Leave empty to keep current"
+                  style={inputStyle}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
                 />
               </div>
             </div>

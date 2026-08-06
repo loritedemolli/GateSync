@@ -83,9 +83,14 @@ function MyProblems() {
 
     setSaving(true);
     try {
+      // Merr residentId nga profili
+      const profileRes = await api.get("/residents/my-profile");
+      const residentId = profileRes.data.residentId;
+
       await api.post("/problemreports", {
         title: formData.title,
         description: formData.description,
+        residentId: residentId,
         status: 0,
       });
       await fetchData();

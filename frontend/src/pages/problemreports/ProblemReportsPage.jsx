@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  MdAdd,
   MdEdit,
   MdDelete,
   MdSearch,
@@ -11,7 +10,6 @@ import {
   MdWarning,
   MdCheckCircle,
   MdPending,
-  MdPerson,
 } from "react-icons/md";
 import api from "../../services/api";
 
@@ -94,18 +92,6 @@ function ProblemReportsPage() {
     }
   };
 
-  const openAdd = () => {
-    setSelected(null);
-    setFormData({
-      title: "",
-      description: "",
-      residentId: residents[0]?.residentId || "",
-      status: 0,
-    });
-    setError("");
-    setShowModal(true);
-  };
-
   const openEdit = (item) => {
     setSelected(item);
     setFormData({
@@ -136,25 +122,15 @@ function ProblemReportsPage() {
       return setError("Title must be at least 3 characters!");
     if (!formData.description || formData.description.length < 10)
       return setError("Description must be at least 10 characters!");
-    if (!formData.residentId) return setError("Please select a resident!");
 
     setSaving(true);
     try {
-      if (selected) {
-        await api.put(`/problemreports/${selected.problemReportId}`, {
-          title: formData.title,
-          description: formData.description,
-          residentId: parseInt(formData.residentId),
-          status: parseInt(formData.status),
-        });
-      } else {
-        await api.post("/problemreports", {
-          title: formData.title,
-          description: formData.description,
-          residentId: parseInt(formData.residentId),
-          status: 0,
-        });
-      }
+      await api.put(`/problemreports/${selected.problemReportId}`, {
+        title: formData.title,
+        description: formData.description,
+        residentId: parseInt(formData.residentId),
+        status: parseInt(formData.status),
+      });
       await fetchData();
       setShowModal(false);
     } catch {
@@ -204,47 +180,29 @@ function ProblemReportsPage() {
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1
-            style={{
-              fontSize: "22px",
-              fontWeight: "800",
-              color: "#0f172a",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Problem Reports
-          </h1>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#94a3b8",
-              marginTop: "3px",
-              fontWeight: "500",
-            }}
-          >
-            {reports.length} total ·{" "}
-            {reports.filter((r) => r.status === "Pending").length} pending ·{" "}
-            {reports.filter((r) => r.status === "Resolved").length} resolved
-          </p>
-        </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold"
+      <div className="mb-6">
+        <h1
           style={{
-            background: "linear-gradient(135deg, #22c55e, #15803d)",
-            boxShadow: "0 4px 12px rgba(34,197,94,0.3)",
+            fontSize: "22px",
+            fontWeight: "800",
+            color: "#0f172a",
+            letterSpacing: "-0.5px",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "translateY(-1px)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.transform = "translateY(0)")
-          }
         >
-          <MdAdd size={18} /> Add Report
-        </button>
+          Problem Reports
+        </h1>
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#94a3b8",
+            marginTop: "3px",
+            fontWeight: "500",
+          }}
+        >
+          {reports.length} total ·{" "}
+          {reports.filter((r) => r.status === "Pending").length} pending ·{" "}
+          {reports.filter((r) => r.status === "Resolved").length} resolved
+        </p>
       </div>
 
       {/* Stats */}
@@ -345,7 +303,6 @@ function ProblemReportsPage() {
             }}
           />
         </div>
-
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -366,7 +323,6 @@ function ProblemReportsPage() {
           <option value="InProgress">In Progress</option>
           <option value="Resolved">Resolved</option>
         </select>
-
         <span style={{ fontSize: "13px", color: "#94a3b8", fontWeight: "500" }}>
           {filtered.length} results
         </span>
@@ -446,7 +402,6 @@ function ProblemReportsPage() {
                   (e.currentTarget.style.background = "transparent")
                 }
               >
-                {/* Title */}
                 <div className="flex items-center gap-3">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -483,7 +438,6 @@ function ProblemReportsPage() {
                   </div>
                 </div>
 
-                {/* Resident */}
                 <div className="flex items-center gap-2">
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs text-white flex-shrink-0"
@@ -504,7 +458,6 @@ function ProblemReportsPage() {
                   </span>
                 </div>
 
-                {/* Date */}
                 <span
                   style={{
                     fontSize: "13px",
@@ -521,7 +474,6 @@ function ProblemReportsPage() {
                     : "N/A"}
                 </span>
 
-                {/* Status */}
                 <span
                   className="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 w-fit"
                   style={{
@@ -534,7 +486,6 @@ function ProblemReportsPage() {
                   {item.status}
                 </span>
 
-                {/* Actions */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => openView(item)}
@@ -573,8 +524,8 @@ function ProblemReportsPage() {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
+      {/* Edit Modal */}
+      {showModal && selected && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4"
           style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
@@ -594,7 +545,7 @@ function ProblemReportsPage() {
                   color: "#0f172a",
                 }}
               >
-                {selected ? "Edit Report" : "Add Report"}
+                Edit Report
               </h2>
               <button
                 onClick={() => setShowModal(false)}
@@ -685,56 +636,22 @@ function ProblemReportsPage() {
                     marginBottom: "8px",
                   }}
                 >
-                  Resident
+                  Status
                 </label>
                 <select
-                  value={formData.residentId}
+                  value={formData.status}
                   onChange={(e) =>
-                    setFormData((p) => ({ ...p, residentId: e.target.value }))
+                    setFormData((p) => ({ ...p, status: e.target.value }))
                   }
                   style={inputStyle}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 >
-                  <option value="">Select resident...</option>
-                  {residents.map((r) => (
-                    <option key={r.residentId} value={r.residentId}>
-                      {r.fullName}
-                    </option>
-                  ))}
+                  <option value={0}>Pending</option>
+                  <option value={1}>In Progress</option>
+                  <option value={2}>Resolved</option>
                 </select>
               </div>
-
-              {selected && (
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "11px",
-                      fontWeight: "700",
-                      color: "#64748b",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) =>
-                      setFormData((p) => ({ ...p, status: e.target.value }))
-                    }
-                    style={inputStyle}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                  >
-                    <option value={0}>Pending</option>
-                    <option value={1}>In Progress</option>
-                    <option value={2}>Resolved</option>
-                  </select>
-                </div>
-              )}
             </div>
 
             <div className="flex gap-3">
@@ -760,11 +677,7 @@ function ProblemReportsPage() {
                 }}
               >
                 <MdCheck size={16} />
-                {saving
-                  ? "Saving..."
-                  : selected
-                    ? "Save Changes"
-                    : "Add Report"}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -803,7 +716,6 @@ function ProblemReportsPage() {
               </button>
             </div>
 
-            {/* Status Banner */}
             {(() => {
               const style = getStatusStyle(selected.status);
               return (
@@ -836,7 +748,6 @@ function ProblemReportsPage() {
               );
             })()}
 
-            {/* Description */}
             <div
               className="p-4 rounded-xl mb-4"
               style={{ background: "#f8fafc", border: "1px solid #f1f5f9" }}

@@ -53,10 +53,14 @@ function MyVehicles() {
 
     setSaving(true);
     try {
+      const profileRes = await api.get("/residents/my-profile");
+      const residentId = profileRes.data.residentId;
+
       await api.post("/vehicles", {
         plateNumber: formData.plateNumber,
         brand: formData.brand,
-        model: formData.model,
+        modelName: formData.model,
+        residentId: residentId,
       });
       await fetchData();
       setShowModal(false);

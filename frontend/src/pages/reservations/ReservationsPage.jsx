@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  MdAdd,
-  MdEdit,
   MdDelete,
   MdSearch,
   MdEventAvailable,
@@ -16,7 +14,6 @@ import api from "../../services/api";
 
 function ReservationsPage() {
   const [reservations, setReservations] = useState([]);
-  const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -24,23 +21,13 @@ function ReservationsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [formData, setFormData] = useState({
-    facilityName: "",
-    time: "",
-    residentId: "",
-    status: 0,
-  });
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ status: 0 });
   const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     try {
-      const [reservationsRes, residentsRes] = await Promise.all([
-        api.get("/reservations"),
-        api.get("/residents"),
-      ]);
+      const reservationsRes = await api.get("/reservations");
       setReservations(reservationsRes.data);
-      setResidents(residentsRes.data);
     } catch {
       console.log("Error");
     } finally {
@@ -93,30 +80,12 @@ function ReservationsPage() {
     }
   };
 
-  const openAdd = () => {
-    setSelected(null);
-    setFormData({
-      facilityName: "",
-      time: "",
-      residentId: residents[0]?.residentId || "",
-      status: 0,
-    });
-    setError("");
-    setShowModal(true);
-  };
-
   const openEdit = (item) => {
     setSelected(item);
     setFormData({
-      facilityName: item.facilityName,
-      time: item.time?.split("T")[0] || "",
-      residentId:
-        residents.find((r) => r.fullName === item.residentName)?.residentId ||
-        "",
       status:
         item.status === "Pending" ? 0 : item.status === "Approved" ? 1 : 2,
     });
-    setError("");
     setShowModal(true);
   };
 
@@ -131,32 +100,18 @@ function ReservationsPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.facilityName || formData.facilityName.length < 2)
-      return setError("Facility name must be at least 2 characters!");
-    if (!formData.time) return setError("Please select a date and time!");
-    if (!formData.residentId) return setError("Please select a resident!");
-
     setSaving(true);
     try {
-      if (selected) {
-        await api.put(`/reservations/${selected.reservationId}`, {
-          facilityName: formData.facilityName,
-          time: formData.time,
-          residentId: parseInt(formData.residentId),
-          status: parseInt(formData.status),
-        });
-      } else {
-        await api.post("/reservations", {
-          facilityName: formData.facilityName,
-          time: formData.time,
-          residentId: parseInt(formData.residentId),
-          status: 0,
-        });
-      }
+      await api.put(`/reservations/${selected.reservationId}`, {
+        facilityName: selected.facilityName,
+        time: selected.time,
+        residentId: selected.residentId,
+        status: parseInt(formData.status),
+      });
       await fetchData();
       setShowModal(false);
     } catch {
-      setError("Something went wrong!");
+      console.log("Error");
     } finally {
       setSaving(false);
     }
@@ -202,47 +157,29 @@ function ReservationsPage() {
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1
-            style={{
-              fontSize: "22px",
-              fontWeight: "800",
-              color: "#0f172a",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Reservations
-          </h1>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#94a3b8",
-              marginTop: "3px",
-              fontWeight: "500",
-            }}
-          >
-            {reservations.length} total ·{" "}
-            {reservations.filter((r) => r.status === "Pending").length} pending
-            approval
-          </p>
-        </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold"
+      <div className="mb-6">
+        <h1
           style={{
-            background: "linear-gradient(135deg, #22c55e, #15803d)",
-            boxShadow: "0 4px 12px rgba(34,197,94,0.3)",
+            fontSize: "22px",
+            fontWeight: "800",
+            color: "#0f172a",
+            letterSpacing: "-0.5px",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "translateY(-1px)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.transform = "translateY(0)")
-          }
         >
-          <MdAdd size={18} /> Add Reservation
-        </button>
+          Reservations
+        </h1>
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#94a3b8",
+            marginTop: "3px",
+            fontWeight: "500",
+          }}
+        >
+          {reservations.length} total ·{" "}
+          {reservations.filter((r) => r.status === "Pending").length} pending
+          approval
+        </p>
       </div>
 
       {/* Stats */}
@@ -343,7 +280,6 @@ function ReservationsPage() {
             }}
           />
         </div>
-
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -364,7 +300,6 @@ function ReservationsPage() {
           <option value="Approved">Approved</option>
           <option value="Rejected">Rejected</option>
         </select>
-
         <span style={{ fontSize: "13px", color: "#94a3b8", fontWeight: "500" }}>
           {filtered.length} results
         </span>
@@ -444,7 +379,6 @@ function ReservationsPage() {
                   (e.currentTarget.style.background = "transparent")
                 }
               >
-                {/* Facility */}
                 <div className="flex items-center gap-3">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -466,7 +400,6 @@ function ReservationsPage() {
                   </p>
                 </div>
 
-                {/* Resident */}
                 <div className="flex items-center gap-2">
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs text-white flex-shrink-0"
@@ -487,7 +420,6 @@ function ReservationsPage() {
                   </span>
                 </div>
 
-                {/* Date */}
                 <span
                   style={{
                     fontSize: "13px",
@@ -504,7 +436,6 @@ function ReservationsPage() {
                     : "N/A"}
                 </span>
 
-                {/* Status */}
                 <span
                   className="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 w-fit"
                   style={{
@@ -517,7 +448,6 @@ function ReservationsPage() {
                   {item.status}
                 </span>
 
-                {/* Actions */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => openView(item)}
@@ -537,7 +467,7 @@ function ReservationsPage() {
                       border: "1px solid #bfdbfe",
                     }}
                   >
-                    <MdEdit size={14} style={{ color: "#2563eb" }} />
+                    <MdCheck size={14} style={{ color: "#2563eb" }} />
                   </button>
                   <button
                     onClick={() => openDelete(item)}
@@ -556,14 +486,14 @@ function ReservationsPage() {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
+      {/* Approve/Reject Modal */}
+      {showModal && selected && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4"
           style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
         >
           <div
-            className="w-full max-w-md rounded-2xl p-6"
+            className="w-full max-w-sm rounded-2xl p-6"
             style={{
               background: "#fff",
               boxShadow: "0 24px 64px rgba(0,0,0,0.3)",
@@ -577,7 +507,7 @@ function ReservationsPage() {
                   color: "#0f172a",
                 }}
               >
-                {selected ? "Edit Reservation" : "Add Reservation"}
+                Update Status
               </h2>
               <button
                 onClick={() => setShowModal(false)}
@@ -588,135 +518,71 @@ function ReservationsPage() {
               </button>
             </div>
 
-            {error && (
-              <div
-                className="mb-4 px-4 py-3 rounded-xl text-sm font-semibold"
-                style={{
-                  background: "#fff1f2",
-                  color: "#e11d48",
-                  border: "1px solid #fecdd3",
-                }}
-              >
-                {error}
-              </div>
-            )}
+            <p
+              style={{
+                fontSize: "13px",
+                fontWeight: "600",
+                color: "#64748b",
+                marginBottom: "16px",
+              }}
+            >
+              {selected.facilityName} · {selected.residentName}
+            </p>
 
-            <div className="space-y-4 mb-5">
-              <div>
-                <label
+            <div className="space-y-2 mb-6">
+              {[
+                {
+                  value: 0,
+                  label: "Pending",
+                  color: "#d97706",
+                  bg: "#fffbeb",
+                  border: "#fde68a",
+                },
+                {
+                  value: 1,
+                  label: "Approved",
+                  color: "#16a34a",
+                  bg: "#f0fdf4",
+                  border: "#bbf7d0",
+                },
+                {
+                  value: 2,
+                  label: "Rejected",
+                  color: "#dc2626",
+                  bg: "#fef2f2",
+                  border: "#fecaca",
+                },
+              ].map((status) => (
+                <button
+                  key={status.value}
+                  onClick={() =>
+                    setFormData((p) => ({ ...p, status: status.value }))
+                  }
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all"
                   style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
+                    background:
+                      formData.status === status.value ? status.bg : "#f8fafc",
+                    border: `1.5px solid ${formData.status === status.value ? status.border : "#e2e8f0"}`,
+                    cursor: "pointer",
                   }}
                 >
-                  Facility Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.facilityName}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, facilityName: e.target.value }))
-                  }
-                  placeholder="e.g. Gym, Swimming Pool, Hall..."
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Date & Time
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formData.time}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, time: e.target.value }))
-                  }
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Resident
-                </label>
-                <select
-                  value={formData.residentId}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, residentId: e.target.value }))
-                  }
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                >
-                  <option value="">Select resident...</option>
-                  {residents.map((r) => (
-                    <option key={r.residentId} value={r.residentId}>
-                      {r.fullName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {selected && (
-                <div>
-                  <label
+                  <span
                     style={{
-                      display: "block",
-                      fontSize: "11px",
+                      fontSize: "14px",
                       fontWeight: "700",
-                      color: "#64748b",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                      marginBottom: "8px",
+                      color:
+                        formData.status === status.value
+                          ? status.color
+                          : "#374151",
                     }}
                   >
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) =>
-                      setFormData((p) => ({ ...p, status: e.target.value }))
-                    }
-                    style={inputStyle}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                  >
-                    <option value={0}>Pending</option>
-                    <option value={1}>Approved</option>
-                    <option value={2}>Rejected</option>
-                  </select>
-                </div>
-              )}
+                    {status.label}
+                  </span>
+                  {formData.status === status.value && (
+                    <MdCheck size={16} style={{ color: status.color }} />
+                  )}
+                </button>
+              ))}
             </div>
 
             <div className="flex gap-3">
@@ -742,11 +608,7 @@ function ReservationsPage() {
                 }}
               >
                 <MdCheck size={16} />
-                {saving
-                  ? "Saving..."
-                  : selected
-                    ? "Save Changes"
-                    : "Add Reservation"}
+                {saving ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
@@ -785,36 +647,24 @@ function ReservationsPage() {
               </button>
             </div>
 
-            {(() => {
-              const style = getStatusStyle(selected.status);
-              return (
-                <div
-                  className="rounded-2xl p-4 mb-5"
-                  style={{
-                    background: "linear-gradient(135deg, #14532d, #16a34a)",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: "18px",
-                      fontWeight: "800",
-                      color: "white",
-                    }}
-                  >
-                    {selected.facilityName}
-                  </p>
-                  <span
-                    className="px-2 py-0.5 rounded-lg text-xs font-bold mt-1 inline-block"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      color: "white",
-                    }}
-                  >
-                    {selected.status}
-                  </span>
-                </div>
-              );
-            })()}
+            <div
+              className="rounded-2xl p-4 mb-5"
+              style={{
+                background: "linear-gradient(135deg, #14532d, #16a34a)",
+              }}
+            >
+              <p
+                style={{ fontSize: "18px", fontWeight: "800", color: "white" }}
+              >
+                {selected.facilityName}
+              </p>
+              <span
+                className="px-2 py-0.5 rounded-lg text-xs font-bold mt-1 inline-block"
+                style={{ background: "rgba(255,255,255,0.2)", color: "white" }}
+              >
+                {selected.status}
+              </span>
+            </div>
 
             <div className="space-y-3">
               {[
@@ -881,7 +731,7 @@ function ReservationsPage() {
                   background: "linear-gradient(135deg, #22c55e, #15803d)",
                 }}
               >
-                Edit
+                Update Status
               </button>
             </div>
           </div>
