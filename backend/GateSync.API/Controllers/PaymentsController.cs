@@ -53,7 +53,7 @@ namespace GateSync.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "SuperAdmin,Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin,Resident")]
         public async Task<IActionResult> Create([FromBody] CreatePaymentDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

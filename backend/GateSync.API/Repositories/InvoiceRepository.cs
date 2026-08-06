@@ -17,6 +17,7 @@ namespace GateSync.API.Repositories
         {
             return await _context.Invoices
                 .Include(i => i.Residence)
+                    .ThenInclude(r => r.Residents)
                 .OrderByDescending(i => i.DueDate)
                 .ToListAsync();
         }

@@ -24,7 +24,7 @@ namespace GateSync.API.Models
     public enum PaymentMethod
     {
         Cash,
-        BankTransfer,
+        Card,
         Online
     }
 

@@ -39,15 +39,12 @@ namespace GateSync.API.Services
 
         public async Task<AuthResponseDTO?> RegisterAsync(RegisterDTO dto)
         {
-            // Kontrollo nëse username ekziston
             if (await _userRepository.UsernameExistsAsync(dto.Username))
                 return null;
 
-            // Kontrollo nëse email ekziston
             if (await _context.Residents.AnyAsync(r => r.Email == dto.Email))
                 return null;
 
-            // Krijo User
             var user = new User
             {
                 Username = dto.Username,
@@ -57,23 +54,24 @@ namespace GateSync.API.Services
 
             await _userRepository.CreateAsync(user);
 
-            // Krijo Resident automatikisht
-            var resident = new Resident
+            // Krijo resident vetem nese roli eshte resident
+            if (dto.RoleId == 3)
             {
-                FullName = dto.FullName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                IsOwner = false,
-                UserId = user.UserId
-            };
-
-            await _context.Residents.AddAsync(resident);
-            await _context.SaveChangesAsync();
+                var resident = new Resident
+                {
+                    FullName = dto.FullName,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    IsOwner = false,
+                    UserId = user.UserId
+                };
+                await _context.Residents.AddAsync(resident);
+                await _context.SaveChangesAsync();
+            }
 
             var created = await _userRepository.GetByIdAsync(user.UserId);
             return await GenerateTokensAsync(created!);
         }
-
         public async Task<AuthResponseDTO?> RefreshTokenAsync(string refreshToken)
         {
             var token = await _context.RefreshTokens

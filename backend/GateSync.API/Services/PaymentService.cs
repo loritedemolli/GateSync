@@ -1,3 +1,5 @@
+using GateSync.API.Data;
+using GateSync.API.Models;
 using GateSync.API.Models.DTOs.Payment;
 using GateSync.API.Models.Entities;
 using GateSync.API.Repositories;
@@ -7,12 +9,13 @@ namespace GateSync.API.Services
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _repository;
+        private readonly AppDbContext _context;
 
-        public PaymentService(IPaymentRepository repository)
+        public PaymentService(IPaymentRepository repository, AppDbContext context)
         {
             _repository = repository;
+            _context = context;
         }
-
         public async Task<List<PaymentResponseDTO>> GetAllAsync()
         {
             var payments = await _repository.GetAllAsync();
@@ -69,6 +72,15 @@ namespace GateSync.API.Services
             };
 
             await _repository.CreateAsync(payment);
+
+           
+            var invoice = await _context.Invoices.FindAsync(dto.InvoiceId);
+            if (invoice != null && dto.PaidAmount >= invoice.Amount)
+            {
+                invoice.Status = InvoiceStatus.Paid;
+                await _context.SaveChangesAsync();
+            }
+
             var created = await _repository.GetByIdAsync(payment.PaymentId);
 
             return new PaymentResponseDTO

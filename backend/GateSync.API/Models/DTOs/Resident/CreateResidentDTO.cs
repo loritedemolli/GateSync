@@ -23,6 +23,6 @@ namespace GateSync.API.Models.DTOs.Resident
         public int ResidenceId { get; set; }
 
         [Required(ErrorMessage = "User është i detyrueshëm")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
     }
 }

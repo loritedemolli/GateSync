@@ -23,8 +23,9 @@ namespace GateSync.API.Services
                 PhoneNumber = r.PhoneNumber,
                 Email = r.Email,
                 IsOwner = r.IsOwner,
-                ResidenceAddress = r.Residence.Address,
-                Username = r.User.Username
+                ResidenceAddress = r.Residence?.Address ?? "Not assigned",
+                NeighborhoodName = r.Residence?.Neighborhood?.Name ?? "",
+                Username = r.User?.Username ?? ""
             }).ToList();
         }
 
@@ -54,7 +55,7 @@ namespace GateSync.API.Services
                 Email = dto.Email,
                 IsOwner = dto.IsOwner,
                 ResidenceId = dto.ResidenceId,
-                UserId = dto.UserId
+                UserId = dto.UserId ?? 0
             };
 
             await _repository.CreateAsync(resident);
