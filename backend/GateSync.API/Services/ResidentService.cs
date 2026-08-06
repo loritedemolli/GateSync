@@ -93,8 +93,8 @@ namespace GateSync.API.Services
                 PhoneNumber = updated.PhoneNumber,
                 Email = updated.Email,
                 IsOwner = updated.IsOwner,
-                ResidenceAddress = updated.Residence.Address,
-                Username = updated.User.Username
+                ResidenceAddress = updated.Residence?.Address ?? "",
+                Username = updated.User?.Username ?? ""
             };
         }
 

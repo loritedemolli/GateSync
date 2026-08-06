@@ -18,8 +18,7 @@ namespace GateSync.API.Models.DTOs.Resident
         public string Email { get; set; } = string.Empty;
 
         public bool IsOwner { get; set; }
-
-        [Required(ErrorMessage = "Rezidenca është e detyrueshme")]
-        public int ResidenceId { get; set; }
+        public int? ResidenceId { get; set; }
+        public int? UserId { get; set; }
     }
 }

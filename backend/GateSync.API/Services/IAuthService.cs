@@ -8,5 +8,6 @@ namespace GateSync.API.Services
         Task<AuthResponseDTO?> RegisterAsync(RegisterDTO dto);
         Task<AuthResponseDTO?> RefreshTokenAsync(string refreshToken);
         Task<bool> RevokeTokenAsync(string refreshToken);
+        Task<bool> ChangePasswordAsync(int userId, string newPassword);
     }
 }

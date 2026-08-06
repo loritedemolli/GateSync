@@ -126,5 +126,14 @@ namespace GateSync.API.Services
                 Role = user.Role.Name.ToString()
             };
         }
+        public async Task<bool> ChangePasswordAsync(int userId, string newPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) return false;
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _userRepository.UpdateAsync(user);
+            return true;
+        }
     }
 }

@@ -1,5 +1,6 @@
 using GateSync.API.Models.DTOs.Auth;
 using GateSync.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GateSync.API.Controllers
@@ -58,5 +59,17 @@ namespace GateSync.API.Controllers
 
 			return NoContent();
 		}
-	}
+        [HttpPut("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            if (userId == null) return Unauthorized();
+
+            var result = await _authService.ChangePasswordAsync(int.Parse(userId), dto.NewPassword);
+            if (!result) return BadRequest("Failed to change password");
+
+            return Ok("Password changed successfully");
+        }
+    }
 }
