@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  MdAdd,
-  MdEdit,
   MdDelete,
   MdSearch,
   MdPayment,
   MdClose,
-  MdCheck,
   MdVisibility,
   MdCreditCard,
   MdAttachMoney,
@@ -16,35 +13,17 @@ import api from "../../services/api";
 
 function PaymentsPage() {
   const [payments, setPayments] = useState([]);
-  const [invoices, setInvoices] = useState([]);
-  const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterMethod, setFilterMethod] = useState("");
-  const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [formData, setFormData] = useState({
-    invoiceId: "",
-    residentId: "",
-    paidAmount: "",
-    paymentDate: "",
-    method: 0,
-  });
-  const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     try {
-      const [paymentsRes, invoicesRes, residentsRes] = await Promise.all([
-        api.get("/payments"),
-        api.get("/invoices"),
-        api.get("/residents"),
-      ]);
+      const paymentsRes = await api.get("/payments");
       setPayments(paymentsRes.data);
-      setInvoices(invoicesRes.data);
-      setResidents(residentsRes.data);
     } catch {
       console.log("Error");
     } finally {
@@ -97,34 +76,6 @@ function PaymentsPage() {
     }
   };
 
-  const openAdd = () => {
-    setSelected(null);
-    setFormData({
-      invoiceId: invoices[0]?.invoiceId || "",
-      residentId: residents[0]?.residentId || "",
-      paidAmount: "",
-      paymentDate: new Date().toISOString().split("T")[0],
-      method: 0,
-    });
-    setError("");
-    setShowModal(true);
-  };
-
-  const openEdit = (item) => {
-    setSelected(item);
-    setFormData({
-      invoiceId: item.invoiceId,
-      residentId:
-        residents.find((r) => r.fullName === item.residentName)?.residentId ||
-        "",
-      paidAmount: item.paidAmount,
-      paymentDate: item.paymentDate?.split("T")[0] || "",
-      method: item.method === "Cash" ? 0 : item.method === "Card" ? 1 : 2,
-    });
-    setError("");
-    setShowModal(true);
-  };
-
   const openView = (item) => {
     setSelected(item);
     setShowViewModal(true);
@@ -133,41 +84,6 @@ function PaymentsPage() {
   const openDelete = (item) => {
     setSelected(item);
     setShowDeleteModal(true);
-  };
-
-  const handleSave = async () => {
-    if (!formData.invoiceId) return setError("Please select an invoice!");
-    if (!formData.residentId) return setError("Please select a resident!");
-    if (!formData.paidAmount || formData.paidAmount <= 0)
-      return setError("Amount must be greater than 0!");
-    if (!formData.paymentDate) return setError("Payment date is required!");
-
-    setSaving(true);
-    try {
-      if (selected) {
-        await api.put(`/payments/${selected.paymentId}`, {
-          invoiceId: parseInt(formData.invoiceId),
-          residentId: parseInt(formData.residentId),
-          paidAmount: parseFloat(formData.paidAmount),
-          paymentDate: formData.paymentDate,
-          method: parseInt(formData.method),
-        });
-      } else {
-        await api.post("/payments", {
-          invoiceId: parseInt(formData.invoiceId),
-          residentId: parseInt(formData.residentId),
-          paidAmount: parseFloat(formData.paidAmount),
-          paymentDate: formData.paymentDate,
-          method: parseInt(formData.method),
-        });
-      }
-      await fetchData();
-      setShowModal(false);
-    } catch {
-      setError("Something went wrong!");
-    } finally {
-      setSaving(false);
-    }
   };
 
   const handleDelete = async () => {
@@ -180,33 +96,6 @@ function PaymentsPage() {
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "11px 16px",
-    borderRadius: "12px",
-    border: "1.5px solid #e2e8f0",
-    background: "#f8fafc",
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#0f172a",
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "system-ui, sans-serif",
-    transition: "all 0.15s",
-  };
-
-  const handleFocus = (e) => {
-    e.target.style.borderColor = "#22c55e";
-    e.target.style.background = "#f0fdf4";
-    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)";
-  };
-
-  const handleBlur = (e) => {
-    e.target.style.borderColor = "#e2e8f0";
-    e.target.style.background = "#f8fafc";
-    e.target.style.boxShadow = "none";
-  };
-
   const totalCollected = payments.reduce(
     (sum, p) => sum + (p.paidAmount || 0),
     0,
@@ -215,46 +104,28 @@ function PaymentsPage() {
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1
-            style={{
-              fontSize: "22px",
-              fontWeight: "800",
-              color: "#0f172a",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Payments
-          </h1>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#94a3b8",
-              marginTop: "3px",
-              fontWeight: "500",
-            }}
-          >
-            {payments.length} total payments · ${totalCollected.toFixed(2)}{" "}
-            collected
-          </p>
-        </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold"
+      <div className="mb-6">
+        <h1
           style={{
-            background: "linear-gradient(135deg, #22c55e, #15803d)",
-            boxShadow: "0 4px 12px rgba(34,197,94,0.3)",
+            fontSize: "22px",
+            fontWeight: "800",
+            color: "#0f172a",
+            letterSpacing: "-0.5px",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "translateY(-1px)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.transform = "translateY(0)")
-          }
         >
-          <MdAdd size={18} /> Add Payment
-        </button>
+          Payments
+        </h1>
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#94a3b8",
+            marginTop: "3px",
+            fontWeight: "500",
+          }}
+        >
+          {payments.length} total payments · ${totalCollected.toFixed(2)}{" "}
+          collected
+        </p>
       </div>
 
       {/* Stats */}
@@ -345,7 +216,6 @@ function PaymentsPage() {
             }}
           />
         </div>
-
         <select
           value={filterMethod}
           onChange={(e) => setFilterMethod(e.target.value)}
@@ -366,7 +236,6 @@ function PaymentsPage() {
           <option value="Card">Card</option>
           <option value="BankTransfer">Bank Transfer</option>
         </select>
-
         <span style={{ fontSize: "13px", color: "#94a3b8", fontWeight: "500" }}>
           {filtered.length} results
         </span>
@@ -384,7 +253,7 @@ function PaymentsPage() {
         <div
           className="grid px-5 py-3"
           style={{
-            gridTemplateColumns: "2fr 1fr 1fr 1fr 120px",
+            gridTemplateColumns: "2fr 1fr 1fr 1fr 80px",
             background: "#f8fafc",
             borderBottom: "1px solid #f1f5f9",
           }}
@@ -432,7 +301,7 @@ function PaymentsPage() {
                 key={item.paymentId}
                 className="grid px-5 py-4 transition-all"
                 style={{
-                  gridTemplateColumns: "2fr 1fr 1fr 1fr 120px",
+                  gridTemplateColumns: "2fr 1fr 1fr 1fr 80px",
                   alignItems: "center",
                   borderBottom:
                     i < filtered.length - 1 ? "1px solid #f8fafc" : "none",
@@ -501,19 +370,17 @@ function PaymentsPage() {
                     : "N/A"}
                 </span>
 
-                <div className="flex items-center gap-2">
-                  <span
-                    className="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1"
-                    style={{
-                      background: methodStyle.bg,
-                      color: methodStyle.color,
-                      border: `1px solid ${methodStyle.border}`,
-                    }}
-                  >
-                    <Icon size={12} />
-                    {item.method}
-                  </span>
-                </div>
+                <span
+                  className="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 w-fit"
+                  style={{
+                    background: methodStyle.bg,
+                    color: methodStyle.color,
+                    border: `1px solid ${methodStyle.border}`,
+                  }}
+                >
+                  <Icon size={12} />
+                  {item.method}
+                </span>
 
                 <div className="flex gap-2">
                   <button
@@ -525,16 +392,6 @@ function PaymentsPage() {
                     }}
                   >
                     <MdVisibility size={14} style={{ color: "#16a34a" }} />
-                  </button>
-                  <button
-                    onClick={() => openEdit(item)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{
-                      background: "#eff6ff",
-                      border: "1px solid #bfdbfe",
-                    }}
-                  >
-                    <MdEdit size={14} style={{ color: "#2563eb" }} />
                   </button>
                   <button
                     onClick={() => openDelete(item)}
@@ -552,237 +409,6 @@ function PaymentsPage() {
           })
         )}
       </div>
-
-      {/* Add/Edit Modal */}
-      {showModal && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-50 p-4"
-          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl p-6"
-            style={{
-              background: "#fff",
-              boxShadow: "0 24px 64px rgba(0,0,0,0.3)",
-            }}
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "800",
-                  color: "#0f172a",
-                }}
-              >
-                {selected ? "Edit Payment" : "Add Payment"}
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}
-              >
-                <MdClose size={15} style={{ color: "#64748b" }} />
-              </button>
-            </div>
-
-            {error && (
-              <div
-                className="mb-4 px-4 py-3 rounded-xl text-sm font-semibold"
-                style={{
-                  background: "#fff1f2",
-                  color: "#e11d48",
-                  border: "1px solid #fecdd3",
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-4 mb-5">
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Invoice
-                </label>
-                <select
-                  value={formData.invoiceId}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, invoiceId: e.target.value }))
-                  }
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                >
-                  <option value="">Select invoice...</option>
-                  {invoices
-                    .filter((i) => i.status !== "Paid")
-                    .map((i) => (
-                      <option key={i.invoiceId} value={i.invoiceId}>
-                        #{i.invoiceId} — {i.residenceAddress} — ${i.amount}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Resident
-                </label>
-                <select
-                  value={formData.residentId}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, residentId: e.target.value }))
-                  }
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                >
-                  <option value="">Select resident...</option>
-                  {residents.map((r) => (
-                    <option key={r.residentId} value={r.residentId}>
-                      {r.fullName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Amount ($)
-                </label>
-                <input
-                  type="number"
-                  value={formData.paidAmount}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, paidAmount: e.target.value }))
-                  }
-                  placeholder="e.g. 150.00"
-                  min="0"
-                  step="0.01"
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Payment Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.paymentDate}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, paymentDate: e.target.value }))
-                  }
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Payment Method
-                </label>
-                <select
-                  value={formData.method}
-                  onChange={(e) =>
-                    setFormData((p) => ({ ...p, method: e.target.value }))
-                  }
-                  style={inputStyle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                >
-                  <option value={0}>Cash</option>
-                  <option value={1}>Card</option>
-                  <option value={2}>Bank Transfer</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="flex-1 py-3 rounded-xl text-sm font-bold"
-                style={{
-                  background: "#f8fafc",
-                  border: "1.5px solid #e2e8f0",
-                  color: "#64748b",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
-                style={{
-                  background: saving
-                    ? "#86efac"
-                    : "linear-gradient(135deg, #22c55e, #15803d)",
-                }}
-              >
-                <MdCheck size={16} />
-                {saving
-                  ? "Saving..."
-                  : selected
-                    ? "Save Changes"
-                    : "Add Payment"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* View Modal */}
       {showViewModal && selected && (

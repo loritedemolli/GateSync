@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  MdAdd,
   MdEdit,
   MdDelete,
   MdSearch,
@@ -8,7 +7,6 @@ import {
   MdHome,
   MdClose,
   MdCheck,
-  MdPerson,
   MdEmail,
   MdPhone,
   MdVisibility,
@@ -19,11 +17,11 @@ function ResidentsPage() {
   const [residents, setResidents] = useState([]);
   const [residences, setResidences] = useState([]);
   const [neighborhoods, setNeighborhoods] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterNeighborhood, setFilterNeighborhood] = useState("");
   const [filterOwner, setFilterOwner] = useState("");
-  const [filterResidence, setFilterResidence] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -34,22 +32,24 @@ function ResidentsPage() {
     phoneNumber: "",
     isOwner: false,
     residenceId: "",
+    userId: "",
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
     try {
-      const [residentsRes, residencesRes, neighborhoodsRes] = await Promise.all(
-        [
+      const [residentsRes, residencesRes, neighborhoodsRes, usersRes] =
+        await Promise.all([
           api.get("/residents"),
           api.get("/residences"),
           api.get("/neighborhoods"),
-        ],
-      );
+          api.get("/users"),
+        ]);
       setResidents(residentsRes.data);
       setResidences(residencesRes.data);
       setNeighborhoods(neighborhoodsRes.data);
+      setUsers(usersRes.data.filter((u) => u.roleName === "Resident"));
     } catch {
       console.log("Error");
     } finally {
@@ -74,23 +74,8 @@ function ResidentsPage() {
         : filterOwner === "owner"
           ? r.isOwner
           : !r.isOwner;
-    const matchResidence =
-      !filterResidence || r.residenceAddress === filterResidence;
-    return matchSearch && matchNeighborhood && matchOwner && matchResidence;
+    return matchSearch && matchNeighborhood && matchOwner;
   });
-
-  const openAdd = () => {
-    setSelected(null);
-    setFormData({
-      fullName: "",
-      email: "",
-      phoneNumber: "",
-      isOwner: false,
-      residenceId: "",
-    });
-    setError("");
-    setShowModal(true);
-  };
 
   const openEdit = (item) => {
     setSelected(item);
@@ -102,6 +87,7 @@ function ResidentsPage() {
       residenceId:
         residences.find((r) => r.address === item.residenceAddress)
           ?.residenceId || "",
+      userId: item.userId || "",
     });
     setError("");
     setShowModal(true);
@@ -117,50 +103,36 @@ function ResidentsPage() {
     setShowDeleteModal(true);
   };
 
-  const validate = () => {
+  const handleSave = async () => {
     if (!formData.fullName || formData.fullName.length < 5)
-      return "Full Name must be at least 5 characters!";
+      return setError("Full Name must be at least 5 characters!");
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      return "Email is not valid!";
+      return setError("Email is not valid!");
     if (
       !formData.phoneNumber ||
       !/^[+]?[0-9]{9,15}$/.test(formData.phoneNumber)
     )
-      return "Phone Number must have at least 9 digits!";
-    return null;
-  };
-
-  const handleSave = async () => {
-    const validationError = validate();
-    if (validationError) return setError(validationError);
+      return setError("Phone Number must have at least 9 digits!");
+    if (!formData.residenceId) return setError("Please select a residence!");
 
     setSaving(true);
     try {
-      if (selected) {
-        await api.put(`/residents/${selected.residentId}`, {
-          fullName: formData.fullName,
-          email: formData.email,
-          phoneNumber: formData.phoneNumber,
-          isOwner: formData.isOwner,
-          residenceId: formData.residenceId
-            ? parseInt(formData.residenceId)
-            : null,
-        });
-      } else {
-        await api.post("/residents", {
-          fullName: formData.fullName,
-          email: formData.email,
-          phoneNumber: formData.phoneNumber,
-          isOwner: formData.isOwner,
-          residenceId: formData.residenceId
-            ? parseInt(formData.residenceId)
-            : null,
-        });
-      }
+      await api.put(`/residents/${selected.residentId}`, {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        isOwner: formData.isOwner,
+        residenceId: parseInt(formData.residenceId),
+        userId: selected.userId,
+      });
       await fetchData();
       setShowModal(false);
     } catch (err) {
-      setError(err.response?.data || "Something went wrong!");
+      setError(
+        err.response?.data?.title ||
+          err.response?.data ||
+          "Something went wrong!",
+      );
     } finally {
       setSaving(false);
     }
@@ -210,47 +182,28 @@ function ResidentsPage() {
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1
-            style={{
-              fontSize: "22px",
-              fontWeight: "800",
-              color: "#0f172a",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Residents
-          </h1>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#94a3b8",
-              marginTop: "3px",
-              fontWeight: "500",
-            }}
-          >
-            {residents.length} total ·{" "}
-            {residents.filter((r) => r.isOwner).length} owners ·{" "}
-            {residents.filter((r) => !r.isOwner).length} tenants
-          </p>
-        </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold"
+      <div className="mb-6">
+        <h1
           style={{
-            background: "linear-gradient(135deg, #22c55e, #15803d)",
-            boxShadow: "0 4px 12px rgba(34,197,94,0.3)",
+            fontSize: "22px",
+            fontWeight: "800",
+            color: "#0f172a",
+            letterSpacing: "-0.5px",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "translateY(-1px)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.transform = "translateY(0)")
-          }
         >
-          <MdAdd size={18} /> Add Resident
-        </button>
+          Residents
+        </h1>
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#94a3b8",
+            marginTop: "3px",
+            fontWeight: "500",
+          }}
+        >
+          {residents.length} total · {residents.filter((r) => r.isOwner).length}{" "}
+          owners · {residents.filter((r) => !r.isOwner).length} tenants
+        </p>
       </div>
 
       {/* Stats */}
@@ -341,7 +294,6 @@ function ResidentsPage() {
             }}
           />
         </div>
-
         <select
           value={filterNeighborhood}
           onChange={(e) => setFilterNeighborhood(e.target.value)}
@@ -364,7 +316,6 @@ function ResidentsPage() {
             </option>
           ))}
         </select>
-
         <select
           value={filterOwner}
           onChange={(e) => setFilterOwner(e.target.value)}
@@ -384,7 +335,6 @@ function ResidentsPage() {
           <option value="owner">Owners</option>
           <option value="tenant">Tenants</option>
         </select>
-
         <span style={{ fontSize: "13px", color: "#94a3b8", fontWeight: "500" }}>
           {filtered.length} results
         </span>
@@ -402,7 +352,7 @@ function ResidentsPage() {
         <div
           className="grid px-5 py-3"
           style={{
-            gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 120px",
+            gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 100px",
             background: "#f8fafc",
             borderBottom: "1px solid #f1f5f9",
           }}
@@ -449,7 +399,7 @@ function ResidentsPage() {
               key={item.residentId}
               className="grid px-5 py-4 transition-all"
               style={{
-                gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 120px",
+                gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 100px",
                 alignItems: "center",
                 borderBottom:
                   i < filtered.length - 1 ? "1px solid #f8fafc" : "none",
@@ -461,7 +411,6 @@ function ResidentsPage() {
                 (e.currentTarget.style.background = "transparent")
               }
             >
-              {/* Name */}
               <div className="flex items-center gap-3">
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white flex-shrink-0"
@@ -493,7 +442,6 @@ function ResidentsPage() {
                 </div>
               </div>
 
-              {/* Email */}
               <span
                 style={{
                   fontSize: "13px",
@@ -503,8 +451,6 @@ function ResidentsPage() {
               >
                 {item.email}
               </span>
-
-              {/* Phone */}
               <span
                 style={{
                   fontSize: "13px",
@@ -515,7 +461,6 @@ function ResidentsPage() {
                 {item.phoneNumber}
               </span>
 
-              {/* Residence */}
               {item.residenceAddress ? (
                 <span
                   className="px-2.5 py-1 rounded-lg text-xs font-bold w-fit"
@@ -540,7 +485,6 @@ function ResidentsPage() {
                 </span>
               )}
 
-              {/* Type */}
               <span
                 className="px-2.5 py-1 rounded-lg text-xs font-bold w-fit"
                 style={{
@@ -552,7 +496,6 @@ function ResidentsPage() {
                 {item.isOwner ? "Owner" : "Tenant"}
               </span>
 
-              {/* Actions */}
               <div className="flex gap-2">
                 <button
                   onClick={() => openView(item)}
@@ -581,8 +524,8 @@ function ResidentsPage() {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
+      {/* Edit Modal */}
+      {showModal && selected && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4"
           style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
@@ -602,7 +545,7 @@ function ResidentsPage() {
                   color: "#0f172a",
                 }}
               >
-                {selected ? "Edit Resident" : "Add Resident"}
+                Edit Resident
               </h2>
               <button
                 onClick={() => setShowModal(false)}
@@ -627,6 +570,7 @@ function ResidentsPage() {
             )}
 
             <div className="space-y-4 mb-5">
+              {/* Full Name */}
               <div>
                 <label
                   style={{
@@ -641,31 +585,20 @@ function ResidentsPage() {
                 >
                   Full Name
                 </label>
-                <div className="relative">
-                  <MdPerson
-                    size={16}
-                    style={{
-                      position: "absolute",
-                      left: "14px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      color: "#cbd5e1",
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) =>
-                      setFormData((p) => ({ ...p, fullName: e.target.value }))
-                    }
-                    placeholder="e.g. John Smith"
-                    style={{ ...inputStyle, paddingLeft: "40px" }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, fullName: e.target.value }))
+                  }
+                  placeholder="e.g. John Smith"
+                  style={inputStyle}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
               </div>
 
+              {/* Email */}
               <div>
                 <label
                   style={{
@@ -680,31 +613,20 @@ function ResidentsPage() {
                 >
                   Email
                 </label>
-                <div className="relative">
-                  <MdEmail
-                    size={16}
-                    style={{
-                      position: "absolute",
-                      left: "14px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      color: "#cbd5e1",
-                    }}
-                  />
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData((p) => ({ ...p, email: e.target.value }))
-                    }
-                    placeholder="e.g. john@email.com"
-                    style={{ ...inputStyle, paddingLeft: "40px" }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                  />
-                </div>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, email: e.target.value }))
+                  }
+                  placeholder="e.g. john@email.com"
+                  style={inputStyle}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
               </div>
 
+              {/* Phone */}
               <div>
                 <label
                   style={{
@@ -719,34 +641,20 @@ function ResidentsPage() {
                 >
                   Phone Number
                 </label>
-                <div className="relative">
-                  <MdPhone
-                    size={16}
-                    style={{
-                      position: "absolute",
-                      left: "14px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      color: "#cbd5e1",
-                    }}
-                  />
-                  <input
-                    type="tel"
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      setFormData((p) => ({
-                        ...p,
-                        phoneNumber: e.target.value,
-                      }))
-                    }
-                    placeholder="e.g. +38344123456"
-                    style={{ ...inputStyle, paddingLeft: "40px" }}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                  />
-                </div>
+                <input
+                  type="tel"
+                  value={formData.phoneNumber}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, phoneNumber: e.target.value }))
+                  }
+                  placeholder="e.g. +38344123456"
+                  style={inputStyle}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
               </div>
 
+              {/* Residence */}
               <div>
                 <label
                   style={{
@@ -759,7 +667,7 @@ function ResidentsPage() {
                     marginBottom: "8px",
                   }}
                 >
-                  Residence (optional)
+                  Residence
                 </label>
                 <select
                   value={formData.residenceId}
@@ -770,12 +678,15 @@ function ResidentsPage() {
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 >
-                  <option value="">Not assigned yet</option>
+                  <option value="">Select residence...</option>
                   {residences
                     .filter(
                       (r) =>
                         !r.isOccupied ||
-                        r.residenceId === selected?.residenceId,
+                        residences.find(
+                          (res) =>
+                            res.residenceId === parseInt(formData.residenceId),
+                        )?.residenceId === r.residenceId,
                     )
                     .map((r) => (
                       <option key={r.residenceId} value={r.residenceId}>
@@ -785,6 +696,7 @@ function ResidentsPage() {
                 </select>
               </div>
 
+              {/* Is Owner */}
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -833,11 +745,7 @@ function ResidentsPage() {
                 }}
               >
                 <MdCheck size={16} />
-                {saving
-                  ? "Saving..."
-                  : selected
-                    ? "Save Changes"
-                    : "Add Resident"}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -876,7 +784,6 @@ function ResidentsPage() {
               </button>
             </div>
 
-            {/* Avatar */}
             <div
               className="flex items-center gap-4 mb-6 p-4 rounded-2xl"
               style={{ background: "#f8fafc", border: "1px solid #f1f5f9" }}
@@ -912,7 +819,6 @@ function ResidentsPage() {
               </div>
             </div>
 
-            {/* Details */}
             <div className="space-y-3">
               {[
                 { icon: MdEmail, label: "Email", value: selected.email },

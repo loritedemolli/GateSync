@@ -71,7 +71,7 @@ const allMenuItems = [
     path: "/vehicles",
     icon: MdDirectionsCar,
     label: "Vehicles",
-    roles: ["SuperAdmin", "Admin", "Security"],
+    roles: ["SuperAdmin", "Admin"],
   },
   {
     path: "/notifications",
